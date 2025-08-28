@@ -16,6 +16,10 @@
     "deploy:prepare": "node deploy.js",
     "deploy:help": "node deploy.js"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "keywords": ["monetization", "affiliate", "ecommerce", "marketplace", "revenue"],
   "author": "Money Maker Platform",
   "license": "MIT",

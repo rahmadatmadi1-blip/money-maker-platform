@@ -3,24 +3,23 @@ services:
     name: money-maker-backend
     env: node
     plan: free
+    rootDir: .
     buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
+        value: 5000
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
+      - key: MONGODB_URI
+        sync: false
       - key: CLIENT_URL
         value: https://money-maker-platform.vercel.app
-      - key: MONGODB_URI
-        fromDatabase:
-          name: money-maker-db
-          property: connectionString
-
-databases:
-  - name: money-maker-db
-    databaseName: moneymaker
-    user: moneymaker_user
-    plan: free
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: RATE_LIMIT_WINDOW
+        value: 15
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100

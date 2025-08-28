@@ -1,0 +1,28 @@
+# Environment Variables untuk Render Backend Deployment
+# Copy paste semua variabel ini ke Render Environment Variables
+
+# Database Configuration (WAJIB - Ganti dengan MongoDB Atlas URL Anda)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/moneymaker
+
+# JWT Configuration (WAJIB)
+JWT_SECRET=money-maker-super-secret-jwt-key-production-2024-very-long-and-secure
+JWT_EXPIRE=7d
+
+# Server Configuration (WAJIB)
+PORT=5000
+NODE_ENV=production
+CLIENT_URL=https://money-maker-platform.vercel.app
+
+# Rate Limiting (Opsional)
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Admin Configuration (Opsional)
+ADMIN_EMAIL=admin@moneymaker.com
+ADMIN_PASSWORD=admin123456
+
+# INSTRUKSI:
+# 1. Buat MongoDB Atlas database gratis di https://www.mongodb.com/cloud/atlas
+# 2. Ganti MONGODB_URI dengan connection string dari MongoDB Atlas
+# 3. Copy paste semua environment variables di atas ke Render
+# 4. Deploy Web Service di Render
