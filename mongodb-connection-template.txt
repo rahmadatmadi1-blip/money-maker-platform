@@ -1,0 +1,57 @@
+# MongoDB Atlas Connection String Template
+# Untuk Money Maker Platform Backend Deployment
+
+# ==============================================
+# INFORMASI MONGODB ATLAS
+# ==============================================
+
+# Cluster Name: money-maker-cluster
+# Database Name: money-maker-db
+# Username: moneymaker-admin
+# Password: [GANTI_DENGAN_PASSWORD_ANDA]
+
+# ==============================================
+# CONNECTION STRING UNTUK RENDER
+# ==============================================
+
+# ✅ CONNECTION STRING YANG ANDA DAPATKAN:
+mongodb+srv://moneymaker-admin:<db_password>@cluster0.rwvujp3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+# ✅ CONNECTION STRING UNTUK RENDER (Tambahkan database name):
+mongodb+srv://moneymaker-admin:<db_password>@cluster0.rwvujp3.mongodb.net/money-maker-db?retryWrites=true&w=majority&appName=Cluster0
+
+# CATATAN: Ganti <db_password> dengan password database user Anda yang sebenarnya
+
+# ==============================================
+# CARA MENGGUNAKAN:
+# ==============================================
+
+# 1. Setelah mendapat connection string dari MongoDB Atlas
+# 2. Ganti <password> dengan password user database Anda
+# 3. Pastikan ada '/money-maker-db' sebelum tanda '?'
+# 4. Copy connection string lengkap
+# 5. Paste ke environment variable MONGODB_URI di Render
+
+# ==============================================
+# ENVIRONMENT VARIABLES UNTUK RENDER
+# ==============================================
+
+# MONGODB_URI=mongodb+srv://moneymaker-admin:PASSWORD_ANDA@cluster.xxxxx.mongodb.net/money-maker-db?retryWrites=true&w=majority
+# JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-random
+# JWT_EXPIRE=7d
+# NODE_ENV=production
+# PORT=10000
+# CLIENT_URL=https://money-maker-platform.vercel.app
+# RATE_LIMIT_WINDOW=900000
+# RATE_LIMIT_MAX_REQUESTS=100
+
+# ==============================================
+# CATATAN PENTING
+# ==============================================
+
+# ✅ Pastikan IP Address sudah diset ke 0.0.0.0/0 (Allow from anywhere)
+# ✅ Database user sudah dibuat dengan privilege "Read and write to any database"
+# ✅ Cluster sudah dalam status aktif (hijau)
+# ✅ Connection string sudah ditest dan berfungsi
+
+# Status Setup: [ ] Cluster Created [ ] User Created [ ] Network Access [ ] Connection String Ready

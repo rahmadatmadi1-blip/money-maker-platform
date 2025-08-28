@@ -1,0 +1,70 @@
+# Environment Variables untuk Railway Backend Deployment
+# Copy-paste variabel ini ke Railway Dashboard > Variables
+
+# ===== WAJIB DIISI =====
+
+# Database MongoDB Atlas
+MONGODB_URI=mongodb+srv://rahmadafriyanto:MoneyMaker2024!@cluster0.mongodb.net/money-maker?retryWrites=true&w=majority
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-random
+JWT_EXPIRE=7d
+
+# Server Configuration
+PORT=3000
+NODE_ENV=production
+
+# Frontend URL (Vercel)
+CLIENT_URL=https://money-maker-platform.vercel.app
+
+# ===== INSTRUKSI DEPLOYMENT RAILWAY =====
+
+1. Buka https://railway.app
+2. Login dengan GitHub
+3. New Project > Deploy from GitHub repo
+4. Pilih repository: money-maker-platform
+5. Tunggu initial deployment
+6. Klik service > tab "Variables"
+7. Copy-paste environment variables di atas
+8. Tab "Settings" > Build & Deploy:
+   - Build Command: npm install
+   - Start Command: node server/index.js
+9. Generate Domain di tab "Settings" > "Domains"
+10. Redeploy untuk apply changes
+
+# ===== KONFIGURASI RAILWAY =====
+
+Service Name: money-maker-backend
+Runtime: Node.js
+Build Command: npm install
+Start Command: node server/index.js
+Port: 3000 (otomatis dari environment)
+Region: us-west1 (default)
+
+# ===== VERIFIKASI =====
+
+Test URL: https://[your-service].up.railway.app/api/test
+Expected Response: {"message": "Money Maker API is running!"}
+
+# ===== MONITORING =====
+
+- Cek Usage untuk monitor kredit ($5/bulan)
+- Service auto-sleep saat tidak ada traffic
+- Logs real-time di tab "Logs"
+- Metrics di tab "Metrics"
+
+# ===== TROUBLESHOOTING =====
+
+Jika build gagal:
+- Cek Build Logs di tab "Deployments"
+- Pastikan package.json ada di root
+- Verify start command path
+
+Jika database error:
+- Verify MONGODB_URI
+- Cek MongoDB Atlas network access
+- Pastikan cluster aktif
+
+Jika CORS error:
+- Verify CLIENT_URL
+- Cek CORS config di backend

@@ -2,7 +2,8 @@
 # Copy paste semua variabel ini ke Render Environment Variables
 
 # Database Configuration (WAJIB - Ganti dengan MongoDB Atlas URL Anda)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/moneymaker
+# MONGODB_URI (Ganti <db_password> dengan password Anda):
+MONGODB_URI=mongodb+srv://moneymaker-admin:<db_password>@cluster0.rwvujp3.mongodb.net/money-maker-db?retryWrites=true&w=majority&appName=Cluster0
 
 # JWT Configuration (WAJIB)
 JWT_SECRET=money-maker-super-secret-jwt-key-production-2024-very-long-and-secure
@@ -21,8 +22,29 @@ RATE_LIMIT_MAX_REQUESTS=100
 ADMIN_EMAIL=admin@moneymaker.com
 ADMIN_PASSWORD=admin123456
 
-# INSTRUKSI:
-# 1. Buat MongoDB Atlas database gratis di https://www.mongodb.com/cloud/atlas
-# 2. Ganti MONGODB_URI dengan connection string dari MongoDB Atlas
-# 3. Copy paste semua environment variables di atas ke Render
-# 4. Deploy Web Service di Render
+# PANDUAN DEPLOYMENT RENDER - LANGKAH DEMI LANGKAH:
+
+# STEP 1: Buka dashboard.render.com
+# STEP 2: Klik "New" → "Web Service"
+# STEP 3: Connect GitHub repository "money-maker-platform"
+# STEP 4: Isi konfigurasi berikut:
+#   - Name: money-maker-backend
+#   - Root Directory: . (titik saja)
+#   - Build Command: npm install
+#   - Start Command: npm start
+#   - Instance Type: Free
+
+# STEP 5: Environment Variables - Copy paste HANYA yang WAJIB:
+# (Ganti <db_password> dengan password MongoDB Atlas Anda)
+
+# === COPY MULAI DARI SINI ===
+MONGODB_URI=mongodb+srv://moneymaker-admin:MoneyMaker2024!@cluster0.rwvujp3.mongodb.net/money-maker-db?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=money-maker-super-secret-jwt-key-production-2024-very-long-and-secure
+JWT_EXPIRE=7d
+PORT=5000
+NODE_ENV=production
+CLIENT_URL=https://money-maker-platform.vercel.app
+# === COPY SAMPAI SINI ===
+
+# STEP 6: Klik "Create Web Service"
+# STEP 7: Tunggu deployment selesai (5-10 menit)
