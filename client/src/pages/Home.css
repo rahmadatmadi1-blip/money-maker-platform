@@ -26,11 +26,12 @@
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
+  color: #4A90E2;
 }
 
 .highlight {
-  color: var(--accent-color);
-  background: linear-gradient(45deg, var(--accent-color), #ffd700);
+  color: #4A90E2;
+  background: linear-gradient(45deg, #4A90E2, #ffd700);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -61,7 +62,7 @@
 }
 
 .cta-button.primary {
-  background: var(--accent-color);
+  background: #4A90E2;
   color: var(--primary-color);
 }
 
@@ -111,7 +112,7 @@
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--accent-color);
+  color: #4A90E2;
   margin-bottom: 0.5rem;
 }
 

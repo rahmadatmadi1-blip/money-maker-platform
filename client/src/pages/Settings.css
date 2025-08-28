@@ -13,8 +13,9 @@
   justify-content: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: #ffffff;
   text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .settings-loading .loading-spinner {
@@ -60,12 +61,13 @@
 
 .header-info h1 {
   margin: 0 0 0.5rem 0;
-  color: white;
+  color: #ffffff;
   font-size: 2rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .header-info h1 i {
@@ -75,8 +77,9 @@
 
 .header-info p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .header-actions {
