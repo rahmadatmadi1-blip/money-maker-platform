@@ -1,0 +1,8 @@
+# Environment Variables for Vercel (Frontend)
+# Copy these to your vercel dashboard
+
+REACT_APP_API_URL=https://money-maker-backend.onrender.com
+REACT_APP_CLIENT_URL=https://money-maker-platform.vercel.app
+REACT_APP_APP_NAME=Money Maker Platform
+REACT_APP_VERSION=1.0.0
+REACT_APP_ENVIRONMENT=production

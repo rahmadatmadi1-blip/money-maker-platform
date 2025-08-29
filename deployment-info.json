@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-29T00:47:19.331Z",
+  "version": "1.0.0",
+  "buildSize": "0.00 MB",
+  "environment": "production",
+  "features": [
+    "Bank Transfer (BRI, Jago)",
+    "E-wallet (DANA, OVO)",
+    "Credit Card (General, Jago)",
+    "Payment Security",
+    "User Authentication",
+    "Admin Dashboard"
+  ]
+}

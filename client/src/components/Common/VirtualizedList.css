@@ -1,0 +1,196 @@
+.virtualized-list {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e1e5e9);
+  border-radius: 8px;
+  background: var(--bg-color, #ffffff);
+}
+
+.virtualized-list-container {
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, #c1c1c1) var(--scrollbar-track, #f1f1f1);
+}
+
+.virtualized-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.virtualized-list-container::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #f1f1f1);
+  border-radius: 4px;
+}
+
+.virtualized-list-container::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #c1c1c1);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.virtualized-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #a1a1a1);
+}
+
+.virtualized-list-content {
+  position: relative;
+}
+
+.virtualized-list-items {
+  width: 100%;
+}
+
+.virtualized-list-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light, #f0f0f0);
+  transition: background-color 0.2s ease;
+}
+
+.virtualized-list-item:hover {
+  background-color: var(--hover-bg, #f8f9fa);
+}
+
+.virtualized-list-item:last-child {
+  border-bottom: none;
+}
+
+.virtualized-list-load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-top: 1px solid var(--border-light, #f0f0f0);
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary, #6c757d);
+  font-size: 14px;
+}
+
+.loading-spinner i {
+  color: var(--primary-color, #007bff);
+}
+
+.load-more-placeholder {
+  color: var(--text-muted, #9ca3af);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Dark mode support */
+.dark .virtualized-list {
+  --bg-color: #1a1a1a;
+  --border-color: #333;
+  --border-light: #2a2a2a;
+  --hover-bg: #2a2a2a;
+  --bg-secondary: #2a2a2a;
+  --text-secondary: #b0b0b0;
+  --text-muted: #6b7280;
+  --scrollbar-track: #2a2a2a;
+  --scrollbar-thumb: #4a4a4a;
+  --scrollbar-thumb-hover: #5a5a5a;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .virtualized-list-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .virtualized-list-item {
+    padding: 8px 12px;
+  }
+  
+  .virtualized-list-load-more {
+    padding: 12px;
+  }
+  
+  .loading-spinner,
+  .load-more-placeholder {
+    font-size: 13px;
+  }
+}
+
+/* Animation for smooth scrolling */
+.virtualized-list-items {
+  transition: transform 0.1s ease-out;
+}
+
+/* Focus styles for accessibility */
+.virtualized-list:focus-within {
+  outline: 2px solid var(--focus-color, #007bff);
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.virtualized-list.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Empty state */
+.virtualized-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted, #9ca3af);
+  text-align: center;
+}
+
+.virtualized-list-empty i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.virtualized-list-empty h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.virtualized-list-empty p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Performance optimizations */
+.virtualized-list-item {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+.virtualized-list-items {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .virtualized-list {
+    --border-color: #000;
+    --border-light: #666;
+  }
+  
+  .virtualized-list-item:hover {
+    --hover-bg: #f0f0f0;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .virtualized-list-items {
+    transition: none;
+  }
+  
+  .virtualized-list-item {
+    transition: none;
+  }
+}

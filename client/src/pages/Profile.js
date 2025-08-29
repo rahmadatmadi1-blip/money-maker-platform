@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useDebounce, useApiCache } from '../hooks/usePerformance';
+import { withOptimizations } from '../components/Common/withPerformance';
 import './Profile.css';
 
 const Profile = () => {
@@ -785,4 +787,8 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+// Memoize the Profile component to prevent unnecessary re-renders
+const MemoizedProfile = React.memo(Profile);
+
+// Apply performance optimizations
+export default withOptimizations(MemoizedProfile);

@@ -1,0 +1,215 @@
+.paypal-button-wrapper {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+}
+
+.paypal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  color: #0070ba;
+  margin-bottom: 15px;
+}
+
+.paypal-loading p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.paypal-button-error {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ff6b6b;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.error-content i {
+  font-size: 2rem;
+  color: #ff6b6b;
+  margin-bottom: 15px;
+}
+
+.error-content p {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.retry-button {
+  background: #0070ba;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #005ea6;
+}
+
+.paypal-button-disabled {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dee2e6;
+}
+
+.disabled-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.disabled-content i {
+  font-size: 2rem;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+.disabled-content p {
+  color: #6c757d;
+  margin: 0;
+  font-size: 14px;
+}
+
+#paypal-button-container {
+  margin-bottom: 20px;
+  min-height: 45px;
+}
+
+#paypal-button-container.loading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.paypal-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+}
+
+.security-info {
+  display: flex;
+  align-items: center;
+  color: #28a745;
+}
+
+.security-info i {
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.amount-info {
+  color: #666;
+  font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .paypal-button-wrapper,
+  .paypal-button-error,
+  .paypal-button-disabled {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 8px;
+  }
+  
+  .paypal-info {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+/* PayPal button customization */
+.paypal-button-wrapper .paypal-buttons {
+  margin-bottom: 0 !important;
+}
+
+.paypal-button-wrapper .paypal-button {
+  border-radius: 6px !important;
+}
+
+/* Animation for loading state */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.paypal-button-wrapper {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Focus states for accessibility */
+.retry-button:focus {
+  outline: 2px solid #0070ba;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .paypal-button-wrapper,
+  .paypal-button-error,
+  .paypal-button-disabled {
+    border: 2px solid #000;
+  }
+  
+  .security-info,
+  .amount-info {
+    color: #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .paypal-button-wrapper {
+    animation: none;
+  }
+  
+  .loading-spinner i {
+    animation: none;
+  }
+}

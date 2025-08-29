@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useDebounce, useApiCache } from '../hooks/usePerformance';
+import { withOptimizations } from '../components/Common/withPerformance';
+import PayPalButton from '../components/PayPalButton';
+import PaymentMethodSelector from '../components/PaymentMethodSelector';
 import './Payments.css';
 
 const Payments = () => {
@@ -13,6 +17,7 @@ const Payments = () => {
   const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [depositAmount, setDepositAmount] = useState('');
   
   const [paymentData, setPaymentData] = useState({
     balance: {
@@ -147,7 +152,8 @@ const Payments = () => {
           {
             id: 'pm_001',
             type: 'paypal',
-            email: 'user@example.com',
+            email: '****@gmail.com', // Email disembunyikan untuk keamanan
+            maskedEmail: 'r****@gmail.com',
             isDefault: true,
             isVerified: true,
             addedDate: '2024-01-01T00:00:00Z'
@@ -490,6 +496,14 @@ const Payments = () => {
           </button>
           
           <button 
+            className={`nav-tab ${activeTab === 'deposit' ? 'active' : ''}`}
+            onClick={() => setActiveTab('deposit')}
+          >
+            <i className="fas fa-plus-circle"></i>
+            <span>Deposit</span>
+          </button>
+          
+          <button 
             className={`nav-tab ${activeTab === 'methods' ? 'active' : ''}`}
             onClick={() => setActiveTab('methods')}
           >
@@ -712,6 +726,84 @@ const Payments = () => {
           </div>
         )}
 
+        {activeTab === 'deposit' && (
+          <div className="deposit-section">
+            <div className="section-header">
+              <h3>Add Funds</h3>
+              <p className="section-description">Choose your preferred payment method to add funds</p>
+            </div>
+            
+            <div className="deposit-content">
+              <div className="deposit-form">
+                <div className="form-group">
+                  <label>Deposit Amount</label>
+                  <div className="amount-input-wrapper">
+                    <span className="currency-symbol">Rp</span>
+                    <input
+                     type="number"
+                     min="50000"
+                     max="50000000"
+                     step="1000"
+                     placeholder="0"
+                     className="amount-input"
+                     value={depositAmount}
+                     onChange={(e) => setDepositAmount(e.target.value)}
+                   />
+                  </div>
+                  <div className="amount-suggestions">
+                     <button type="button" onClick={() => setDepositAmount('50000')}>Rp 50K</button>
+                     <button type="button" onClick={() => setDepositAmount('100000')}>Rp 100K</button>
+                     <button type="button" onClick={() => setDepositAmount('250000')}>Rp 250K</button>
+                     <button type="button" onClick={() => setDepositAmount('500000')}>Rp 500K</button>
+                     <button type="button" onClick={() => setDepositAmount('1000000')}>Rp 1M</button>
+                   </div>
+                </div>
+                
+                {depositAmount && parseFloat(depositAmount) >= 50000 && (
+                  <PaymentMethodSelector
+                    amount={parseFloat(depositAmount)}
+                    onPaymentSuccess={(data) => {
+                      console.log('Payment successful:', data);
+                      addNotification(`Pembayaran berhasil! Dana ${data.method === 'paypal' ? 'akan segera tersedia' : 'sedang diverifikasi'}.`, 'success');
+                      setDepositAmount('');
+                      fetchPaymentData();
+                    }}
+                    onPaymentError={(error) => {
+                      console.error('Payment failed:', error);
+                      addNotification('Pembayaran gagal. Silakan coba lagi.', 'error');
+                    }}
+                  />
+                )}
+                
+                <div className="deposit-info">
+                  <div className="info-item">
+                    <i className="fas fa-info-circle"></i>
+                    <span>Minimum deposit: Rp 50.000</span>
+                  </div>
+                  <div className="info-item">
+                    <i className="fas fa-clock"></i>
+                    <span>PayPal: Instant | Transfer: 1-24 jam verifikasi</span>
+                  </div>
+                  <div className="info-item">
+                    <i className="fas fa-shield-alt"></i>
+                    <span>Semua metode pembayaran aman dan terenkripsi</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="deposit-benefits">
+                <h4>Why Add Funds?</h4>
+                <ul>
+                  <li><i className="fas fa-check"></i> Instant access to premium features</li>
+                  <li><i className="fas fa-check"></i> Higher earning potential</li>
+                  <li><i className="fas fa-check"></i> Priority customer support</li>
+                  <li><i className="fas fa-check"></i> Advanced analytics and tools</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'methods' && (
           <div className="methods-section">
             <div className="section-header">
@@ -734,7 +826,7 @@ const Payments = () => {
                     </div>
                     <div className="method-info">
                       <h4>{method.type === 'paypal' ? 'PayPal' : 'Bank Account'}</h4>
-                      <p>{method.type === 'paypal' ? method.email : `${method.bankName} - ${method.accountNumber}`}</p>
+                      <p>{method.type === 'paypal' ? (method.maskedEmail || method.email) : `${method.bankName} - ${method.accountNumber}`}</p>
                     </div>
                     <div className="method-badges">
                       {method.isDefault && (
@@ -859,7 +951,7 @@ const Payments = () => {
                   <option value="">Select payment method</option>
                   {paymentData.paymentMethods.filter(method => method.isVerified).map(method => (
                     <option key={method.id} value={method.type === 'paypal' ? 'PayPal' : 'Bank Transfer'}>
-                      {method.type === 'paypal' ? `PayPal - ${method.email}` : `${method.bankName} - ${method.accountNumber}`}
+                      {method.type === 'paypal' ? `PayPal - ${method.maskedEmail || method.email}` : `${method.bankName} - ${method.accountNumber}`}
                     </option>
                   ))}
                 </select>
@@ -1000,4 +1092,8 @@ const Payments = () => {
   );
 };
 
-export default Payments;
+// Memoize the Payments component to prevent unnecessary re-renders
+const MemoizedPayments = React.memo(Payments);
+
+// Apply performance optimizations
+export default withOptimizations(MemoizedPayments);

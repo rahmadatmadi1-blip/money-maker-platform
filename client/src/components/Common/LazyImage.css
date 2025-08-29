@@ -1,0 +1,120 @@
+.lazy-image-container {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.lazy-image {
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+}
+
+.lazy-image.loading {
+  opacity: 0;
+}
+
+.lazy-image-placeholder,
+.lazy-image-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border-radius: 8px;
+}
+
+.lazy-image-placeholder {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.lazy-image-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.lazy-image-error span {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Responsive behavior */
+.lazy-image-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .lazy-image-container {
+    background-color: #343a40;
+  }
+  
+  .lazy-image-placeholder {
+    background: linear-gradient(90deg, #495057 25%, #6c757d 50%, #495057 75%);
+    background-size: 200% 100%;
+    color: #adb5bd;
+  }
+  
+  .lazy-image-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+  }
+}
+
+/* Loading states for different sizes */
+.lazy-image-container.small {
+  min-width: 50px;
+  min-height: 50px;
+}
+
+.lazy-image-container.medium {
+  min-width: 150px;
+  min-height: 150px;
+}
+
+.lazy-image-container.large {
+  min-width: 300px;
+  min-height: 200px;
+}
+
+/* Hover effects */
+.lazy-image-container:hover .lazy-image.loaded {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.lazy-image-container:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}

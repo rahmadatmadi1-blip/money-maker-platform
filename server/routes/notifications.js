@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const { auth } = require('../middleware/auth');
+const socketService = require('../services/socketService');
 const router = express.Router();
 
 // Notification Model
@@ -182,6 +183,22 @@ const createNotification = async (userId, type, title, message, data = {}, optio
     });
     
     await notification.save();
+    
+    // Send real-time notification via Socket.io
+    if (socketService.isUserConnected(userId)) {
+      socketService.sendToUser(userId, 'new_notification', {
+        id: notification._id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        data: Object.fromEntries(notification.data),
+        actionUrl: notification.actionUrl,
+        actionText: notification.actionText,
+        priority: notification.priority,
+        createdAt: notification.createdAt
+      });
+    }
+    
     return notification;
   } catch (error) {
     console.error('Create notification error:', error);
@@ -220,8 +237,43 @@ router.get('/', auth, async (req, res) => {
     const skip = (page - 1) * limit;
     const { type, isRead, priority } = req.query;
 
+    // Validate user ID
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    // Ensure userId is a valid ObjectId
+    let userId;
+    try {
+      userId = new mongoose.Types.ObjectId(req.user._id);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format'
+      });
+    }
+
+    // Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      console.log('Database not connected, returning empty notifications');
+      return res.json({
+        success: true,
+        notifications: [],
+        unreadCount: 0,
+        pagination: {
+          current: page,
+          pages: 0,
+          total: 0,
+          limit
+        }
+      });
+    }
+
     let query = { 
-      userId: req.user._id,
+      userId: userId,
       $or: [
         { expiresAt: { $exists: false } },
         { expiresAt: { $gt: new Date() } }
@@ -232,20 +284,22 @@ router.get('/', auth, async (req, res) => {
     if (isRead !== undefined) query.isRead = isRead === 'true';
     if (priority) query.priority = priority;
 
+    // Set timeout for database operations
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .maxTimeMS(5000);
 
-    const total = await Notification.countDocuments(query);
+    const total = await Notification.countDocuments(query).maxTimeMS(5000);
     const unreadCount = await Notification.countDocuments({
-      userId: req.user._id,
+      userId: userId,
       isRead: false,
       $or: [
         { expiresAt: { $exists: false } },
         { expiresAt: { $gt: new Date() } }
       ]
-    });
+    }).maxTimeMS(5000);
 
     res.json({
       success: true,

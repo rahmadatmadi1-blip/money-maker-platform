@@ -1,0 +1,12 @@
+# Environment Variables for Render (Backend)
+# Copy these to your render dashboard
+
+MONGODB_URI=mongodb+srv://moneymaker-admin:MoneyMaker2024!@cluster0.mongodb.net/money-maker-db?retryWrites=true&w=majority
+JWT_SECRET=money-maker-super-secret-jwt-key-production-2024-very-long-and-secure
+JWT_EXPIRE=7d
+PORT=10000
+NODE_ENV=production
+CLIENT_URL=https://money-maker-platform.vercel.app
+CORS_ORIGIN=https://money-maker-platform.vercel.app
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX_REQUESTS=100

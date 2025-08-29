@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useDebounce, useApiCache } from '../hooks/usePerformance';
 import './Dashboard.css';
 
-const Dashboard = () => {
+const Dashboard = React.memo(() => {
   const { user } = useAuth();
   const { notifications } = useNotifications();
+  const { getCachedData, setCachedData } = useApiCache();
+  
   const [analytics, setAnalytics] = useState({
     totalRevenue: 0,
     availableBalance: 0,
@@ -20,12 +23,22 @@ const Dashboard = () => {
   const [topPerformers, setTopPerformers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
+  
+  // Debounce time range changes to avoid excessive API calls
+  const debouncedTimeRange = useDebounce(timeRange, 300);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [timeRange]);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
+    // Check cache first
+    const cacheKey = `dashboard-${debouncedTimeRange}-${user?.id}`;
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData) {
+      setAnalytics(cachedData.analytics);
+      setRecentActivities(cachedData.activities);
+      setTopPerformers(cachedData.performers);
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -184,6 +197,13 @@ const Dashboard = () => {
         setAnalytics(demoAnalytics);
         setRecentActivities(demoActivities);
         setTopPerformers(demoPerformers);
+        
+        // Cache the demo data
+        setCachedData(cacheKey, {
+          analytics: demoAnalytics,
+          activities: demoActivities,
+          performers: demoPerformers
+        });
       }
       
     } catch (error) {
@@ -191,28 +211,35 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedTimeRange, user?.id, getCachedData, setCachedData]);
 
-  const formatCurrency = (amount) => {
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Memoize expensive formatting functions
+  const formatCurrency = useCallback((amount) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2
     }).format(amount);
-  };
+  }, []);
 
-  const formatNumber = (num) => {
+  const formatNumber = useCallback((num) => {
     return new Intl.NumberFormat('id-ID').format(num);
-  };
+  }, []);
 
-  const getGreeting = () => {
+  // Memoize greeting calculation
+  const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Selamat Pagi';
     if (hour < 17) return 'Selamat Siang';
     return 'Selamat Malam';
-  };
+  }, []);
 
-  const quickActions = [
+  // Memoize quick actions to prevent unnecessary re-renders
+  const quickActions = useMemo(() => [
     {
       title: 'Create Affiliate Link',
       description: 'Generate new affiliate marketing link',
@@ -241,9 +268,10 @@ const Dashboard = () => {
       color: '#ffa726',
       path: '/marketplace/services/create'
     }
-  ];
+  ], []);
 
-  const statCards = [
+  // Memoize stat cards to prevent unnecessary recalculations
+  const statCards = useMemo(() => [
     {
       title: 'Total Revenue',
       value: formatCurrency(analytics.totalRevenue),
@@ -276,7 +304,7 @@ const Dashboard = () => {
       icon: 'fas fa-users',
       color: '#ff6b6b'
     }
-  ];
+  ], [analytics, formatCurrency, formatNumber]);
 
   if (loading) {
     return (
@@ -296,7 +324,7 @@ const Dashboard = () => {
         <div className="header-content">
           <div className="welcome-section">
             <h1 className="welcome-title">
-              {getGreeting()}, {user?.firstName || user?.name}! 👋
+              {greeting}, {user?.firstName || user?.name}! 👋
             </h1>
             <p className="welcome-subtitle">
               Selamat datang kembali di Money Maker Platform. Mari lihat performa Anda hari ini.
@@ -315,27 +343,22 @@ const Dashboard = () => {
                 <option value="90d">Last 3 Months</option>
               </select>
             </div>
-            <button className="refresh-btn" onClick={fetchDashboardData}>
-              <i className="fas fa-sync-alt"></i>
-            </button>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="stats-grid">
-        {statCards.map((stat, index) => (
+        {statCards.map((card, index) => (
           <div key={index} className="stat-card">
-            <div className="stat-icon" style={{ backgroundColor: stat.color }}>
-              <i className={stat.icon}></i>
+            <div className="stat-icon" style={{ backgroundColor: card.color }}>
+              <i className={card.icon}></i>
             </div>
             <div className="stat-content">
-              <h3 className="stat-title">{stat.title}</h3>
-              <p className="stat-value">{stat.value}</p>
-              <span className={`stat-change ${stat.changeType}`}>
-                {stat.changeType === 'positive' && <i className="fas fa-arrow-up"></i>}
-                {stat.changeType === 'negative' && <i className="fas fa-arrow-down"></i>}
-                {stat.change}
+              <h3 className="stat-title">{card.title}</h3>
+              <p className="stat-value">{card.value}</p>
+              <span className={`stat-change ${card.changeType}`}>
+                {card.change}
               </span>
             </div>
           </div>
@@ -343,7 +366,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="quick-actions-section">
+      <div className="quick-actions">
         <h2 className="section-title">Quick Actions</h2>
         <div className="quick-actions-grid">
           {quickActions.map((action, index) => (
@@ -352,7 +375,7 @@ const Dashboard = () => {
                 <i className={action.icon}></i>
               </div>
               <div className="action-content">
-                <h4 className="action-title">{action.title}</h4>
+                <h3 className="action-title">{action.title}</h3>
                 <p className="action-description">{action.description}</p>
               </div>
               <button className="action-btn">
@@ -363,7 +386,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Main Content Grid */}
+      {/* Dashboard Grid */}
       <div className="dashboard-grid">
         {/* Performance Overview */}
         <div className="dashboard-card performance-card">
@@ -567,6 +590,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Dashboard;

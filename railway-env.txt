@@ -1,0 +1,9 @@
+# Environment Variables for Railway (Backend Alternative)
+# Copy these to your railway dashboard
+
+MONGODB_URI=mongodb+srv://moneymaker-admin:MoneyMaker2024!@cluster0.mongodb.net/money-maker-db?retryWrites=true&w=majority
+JWT_SECRET=money-maker-super-secret-jwt-key-production-2024-very-long-and-secure
+JWT_EXPIRE=7d
+PORT=3000
+NODE_ENV=production
+CLIENT_URL=https://money-maker-platform.vercel.app

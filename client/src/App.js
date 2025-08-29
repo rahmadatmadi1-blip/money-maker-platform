@@ -1,32 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { PWAProvider } from './contexts/PWAContext';
 import Navbar from './components/Layout/Navbar';
 import Sidebar from './components/Layout/Sidebar';
 import Footer from './components/Layout/Footer';
 import LoadingSpinner from './components/Common/LoadingSpinner';
-
-// Pages
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import Affiliate from './pages/Affiliate';
-import ECommerce from './pages/ECommerce';
-import Content from './pages/Content';
-import Marketplace from './pages/Marketplace';
-import Analytics from './pages/Analytics';
-import Payments from './pages/Payments';
-import Notifications from './pages/Notifications';
-import Settings from './pages/Settings';
-import HelpCenter from './pages/HelpCenter';
-import AdminPanel from './pages/Admin/AdminPanel';
-
-// Styles
+import ErrorBoundary from './components/Common/ErrorBoundary';
+import PerformanceMonitor from './components/Common/PerformanceMonitor';
+import { OfflineIndicator, UpdateNotification, InstallPrompt } from './components/PWA';
+import './utils/bundleAnalyzer'; // Auto-start bundle analysis in development
 import './styles/App.css';
 import './styles/globals.css';
+
+// Lazy loaded pages for better performance
+const Home = React.lazy(() => import('./pages/Home'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Affiliate = React.lazy(() => import('./pages/Affiliate'));
+const ECommerce = React.lazy(() => import('./pages/ECommerce'));
+const Content = React.lazy(() => import('./pages/Content'));
+const Marketplace = React.lazy(() => import('./pages/Marketplace'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
+const Payments = React.lazy(() => import('./pages/Payments'));
+const Notifications = React.lazy(() => import('./pages/Notifications'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
+const AdminPanel = React.lazy(() => import('./pages/Admin/AdminPanel'));
+
+// Preload critical components for better UX
+const preloadComponent = (componentImport) => {
+  const componentImporter = () => componentImport();
+  componentImporter();
+  return componentImporter;
+};
+
+// Preload Dashboard and Profile as they are frequently accessed
+if (typeof window !== 'undefined') {
+  // Preload after initial load
+  setTimeout(() => {
+    import('./pages/Dashboard');
+    import('./pages/Profile');
+    import('./pages/Payments');
+  }, 2000);
+}
+
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -104,7 +128,11 @@ const AppLayout = ({ children }) => {
         
         <main className={`main-content ${user ? 'with-sidebar' : 'full-width'} ${sidebarOpen && isMobile ? 'sidebar-open' : ''}`}>
           <div className="content-wrapper">
-            {children}
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner />}>
+                {children}
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </main>
       </div>
@@ -125,9 +153,11 @@ const AppLayout = ({ children }) => {
 // Main App Component
 function App() {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <Router>
+    <Provider store={store}>
+      <PWAProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <Router>
           <div className="App">
             <Routes>
               {/* Public Routes */}
@@ -310,9 +340,25 @@ function App() {
               />
             </Routes>
           </div>
-        </Router>
-      </NotificationProvider>
-    </AuthProvider>
+          
+          {/* PWA Components */}
+          <OfflineIndicator />
+          <UpdateNotification />
+          <InstallPrompt />
+          
+          {/* Performance Monitor for development */}
+          <PerformanceMonitor 
+            enabled={process.env.NODE_ENV === 'development'}
+            showMetrics={['fps', 'memory', 'timing']}
+            onPerformanceIssue={(type, value, threshold) => {
+              console.warn(`Performance issue detected: ${type} = ${value} (threshold: ${threshold})`);
+            }}
+          />
+            </Router>
+          </NotificationProvider>
+        </AuthProvider>
+      </PWAProvider>
+    </Provider>
   );
 }
 

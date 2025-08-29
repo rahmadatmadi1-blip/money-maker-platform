@@ -1,71 +1,11 @@
 const express = require('express');
 const crypto = require('crypto');
 const User = require('../models/User');
+const { AffiliateLink } = require('../models/Affiliate');
 const { auth } = require('../middleware/auth');
+const socketService = require('../services/socketService');
+const { createNotification } = require('./notifications');
 const router = express.Router();
-
-// Affiliate Link Model (inline for simplicity)
-const mongoose = require('mongoose');
-
-const affiliateLinkSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  originalUrl: {
-    type: String,
-    required: true
-  },
-  shortCode: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  description: String,
-  category: {
-    type: String,
-    enum: ['amazon', 'shopee', 'tokopedia', 'lazada', 'custom'],
-    default: 'custom'
-  },
-  commission: {
-    rate: { type: Number, default: 0 }, // percentage
-    amount: { type: Number, default: 0 } // fixed amount
-  },
-  clicks: {
-    type: Number,
-    default: 0
-  },
-  conversions: {
-    type: Number,
-    default: 0
-  },
-  earnings: {
-    type: Number,
-    default: 0
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  expiryDate: Date,
-  tags: [String],
-  clickHistory: [{
-    ip: String,
-    userAgent: String,
-    referrer: String,
-    country: String,
-    timestamp: { type: Date, default: Date.now }
-  }]
-}, {
-  timestamps: true
-});
-
-const AffiliateLink = mongoose.model('AffiliateLink', affiliateLinkSchema);
 
 // @route   POST /api/affiliate/links
 // @desc    Create new affiliate link
@@ -92,16 +32,23 @@ router.post('/links', auth, async (req, res) => {
       if (!existing) isUnique = true;
     }
 
+    // Generate unique tracking ID
+    const trackingId = crypto.randomBytes(8).toString('hex');
+
     const affiliateLink = new AffiliateLink({
-      userId: req.user._id,
+      affiliateId: req.user._id,
+      programId: null, // Will be set when program is created
       originalUrl,
       shortCode,
-      title,
-      description,
-      category,
-      commission,
-      expiryDate,
-      tags
+      trackingId,
+      customAlias: title,
+      metadata: {
+        source: 'manual',
+        campaign: category || 'default',
+        medium: 'affiliate',
+        content: description
+      },
+      expiresAt: expiryDate
     });
 
     await affiliateLink.save();
@@ -134,7 +81,7 @@ router.get('/links', auth, async (req, res) => {
     const search = req.query.search || '';
 
     // Build query
-    let query = { userId: req.user._id };
+    let query = { affiliateId: req.user._id };
     if (category) query.category = category;
     if (search) {
       query.$or = [
@@ -154,7 +101,7 @@ router.get('/links', auth, async (req, res) => {
     const linksWithUrls = links.map(link => ({
       ...link.toObject(),
       shortUrl: `${process.env.CLIENT_URL}/go/${link.shortCode}`,
-      conversionRate: link.clicks > 0 ? ((link.conversions / link.clicks) * 100).toFixed(2) : 0
+      conversionRate: link.stats.clicks > 0 ? ((link.stats.conversions / link.stats.clicks) * 100).toFixed(2) : 0
     }));
 
     res.json({
@@ -184,7 +131,7 @@ router.get('/links/:id', auth, async (req, res) => {
   try {
     const link = await AffiliateLink.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      affiliateId: req.user._id
     });
 
     if (!link) {
@@ -197,7 +144,7 @@ router.get('/links/:id', auth, async (req, res) => {
     const linkWithUrl = {
       ...link.toObject(),
       shortUrl: `${process.env.CLIENT_URL}/go/${link.shortCode}`,
-      conversionRate: link.clicks > 0 ? ((link.conversions / link.clicks) * 100).toFixed(2) : 0
+      conversionRate: link.stats.clicks > 0 ? ((link.stats.conversions / link.stats.clicks) * 100).toFixed(2) : 0
     };
 
     res.json({
@@ -231,7 +178,7 @@ router.put('/links/:id', auth, async (req, res) => {
 
     const link = await AffiliateLink.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      affiliateId: req.user._id
     });
 
     if (!link) {
@@ -274,7 +221,7 @@ router.delete('/links/:id', auth, async (req, res) => {
   try {
     const link = await AffiliateLink.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      affiliateId: req.user._id
     });
 
     if (!link) {
@@ -325,17 +272,12 @@ router.get('/go/:shortCode', async (req, res) => {
     }
 
     // Track click
-    const clickData = {
-      ip: req.ip,
-      userAgent: req.get('User-Agent'),
-      referrer: req.get('Referrer'),
-      country: 'ID', // You can use IP geolocation service
-      timestamp: new Date()
-    };
-
-    link.clicks += 1;
-    link.clickHistory.push(clickData);
+    link.stats.clicks += 1;
+    link.stats.lastClickAt = new Date();
     await link.save();
+
+    // Create click tracking record (optional - for detailed analytics)
+    // You can implement ClickTracking model usage here if needed
 
     // Redirect to original URL
     res.redirect(link.originalUrl);
@@ -375,13 +317,40 @@ router.post('/conversion/:shortCode', async (req, res) => {
     }
 
     // Update link stats
-    link.conversions += 1;
-    link.earnings += commission;
+    link.stats.conversions += 1;
+    link.stats.revenue += commission;
     await link.save();
 
     // Add earnings to user
-    const user = await User.findById(link.userId);
+    const user = await User.findById(link.affiliateId);
     await user.addEarnings(commission, 'pending');
+
+    // Send real-time notification for affiliate commission
+    await createNotification(
+      link.affiliateId,
+      'affiliate_commission',
+      'Komisi Affiliate Diterima!',
+      `Anda mendapat komisi Rp ${commission.toLocaleString('id-ID')} dari link affiliate`,
+      {
+        commission: commission.toString(),
+        orderId: orderId || '',
+        linkTitle: link.title,
+        shortCode: link.shortCode
+      },
+      {
+        actionUrl: '/affiliate/stats',
+        actionText: 'Lihat Statistik',
+        priority: 'medium'
+      }
+    );
+
+    // Send Socket.io notification
+    socketService.notifyAffiliateCommission(link.affiliateId, {
+      amount: commission,
+      orderId,
+      linkTitle: link.title,
+      shortCode: link.shortCode
+    });
 
     res.json({
       success: true,
@@ -425,34 +394,32 @@ router.get('/stats', auth, async (req, res) => {
     }
 
     const links = await AffiliateLink.find({
-      userId: req.user._id,
+      affiliateId: req.user._id,
       createdAt: { $gte: startDate }
     });
 
     const stats = {
       totalLinks: links.length,
       activeLinks: links.filter(link => link.isActive).length,
-      totalClicks: links.reduce((sum, link) => sum + link.clicks, 0),
-      totalConversions: links.reduce((sum, link) => sum + link.conversions, 0),
-      totalEarnings: links.reduce((sum, link) => sum + link.earnings, 0),
+      totalClicks: links.reduce((sum, link) => sum + link.stats.clicks, 0),
+      totalConversions: links.reduce((sum, link) => sum + link.stats.conversions, 0),
+      totalEarnings: links.reduce((sum, link) => sum + link.stats.revenue, 0),
       avgConversionRate: 0,
       topPerformingLinks: links
-        .sort((a, b) => b.earnings - a.earnings)
+        .sort((a, b) => b.stats.revenue - a.stats.revenue)
         .slice(0, 5)
         .map(link => ({
           id: link._id,
           title: link.title,
-          clicks: link.clicks,
-          conversions: link.conversions,
-          earnings: link.earnings,
-          conversionRate: link.clicks > 0 ? ((link.conversions / link.clicks) * 100).toFixed(2) : 0
+          clicks: link.stats.clicks,
+          conversions: link.stats.conversions,
+          earnings: link.stats.revenue,
+          conversionRate: link.stats.clicks > 0 ? ((link.stats.conversions / link.stats.clicks) * 100).toFixed(2) : 0
         }))
     };
 
     // Calculate average conversion rate
-    const totalClicks = stats.totalClicks;
-    const totalConversions = stats.totalConversions;
-    stats.avgConversionRate = totalClicks > 0 ? ((totalConversions / totalClicks) * 100).toFixed(2) : 0;
+    stats.avgConversionRate = stats.totalClicks > 0 ? ((stats.totalConversions / stats.totalClicks) * 100).toFixed(2) : 0;
 
     res.json({
       success: true,

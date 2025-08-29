@@ -1,0 +1,577 @@
+/* PWA Components Styles */
+
+/* Offline Indicator */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 12px 16px;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease-out;
+}
+
+.offline-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.offline-icon {
+  font-size: 18px;
+}
+
+.offline-text {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.offline-subtext {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-left: 8px;
+}
+
+/* Update Notification */
+.update-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e1e5e9;
+  max-width: 400px;
+  z-index: 1001;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.update-content {
+  padding: 20px;
+}
+
+.update-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.update-icon {
+  font-size: 24px;
+  animation: rotate 2s linear infinite;
+}
+
+.update-text h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.update-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #7f8c8d;
+  line-height: 1.4;
+}
+
+.update-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.update-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.update-btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.update-btn-primary:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.update-btn-secondary {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.update-btn-secondary:hover {
+  background: #d5dbdb;
+}
+
+/* Install Prompt */
+.install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e1e5e9;
+  max-width: 500px;
+  margin: 0 auto;
+  z-index: 1001;
+  animation: slideUp 0.3s ease-out;
+}
+
+.install-content {
+  padding: 20px;
+}
+
+.install-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.install-icon {
+  font-size: 24px;
+}
+
+.install-text h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.install-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #7f8c8d;
+  line-height: 1.4;
+}
+
+.install-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.install-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.install-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.install-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.install-btn-secondary {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.install-btn-secondary:hover {
+  background: #d5dbdb;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .update-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .install-prompt {
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+  }
+  
+  .update-content,
+  .install-content {
+    padding: 16px;
+  }
+  
+  .update-actions,
+  .install-actions {
+    flex-direction: column;
+  }
+  
+  .update-btn,
+  .install-btn {
+    width: 100%;
+  }
+}
+
+/* PWA Settings */
+.pwa-settings {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.pwa-settings-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.pwa-settings-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.pwa-settings-header p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+.pwa-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+}
+
+.pwa-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 8px;
+}
+
+.pwa-section h5 {
+  margin: 16px 0 12px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #34495e;
+}
+
+.status-value {
+  font-weight: 600;
+}
+
+.status-value.online {
+  color: #27ae60;
+}
+
+.status-value.offline {
+  color: #e74c3c;
+}
+
+.pwa-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 8px 8px 0 0;
+}
+
+.pwa-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pwa-btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.pwa-btn-primary:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.pwa-btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.pwa-btn-secondary:hover:not(:disabled) {
+  background: #7f8c8d;
+}
+
+.pwa-btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.pwa-btn-danger:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.notification-preferences {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #ecf0f1;
+}
+
+.notification-toggle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.notification-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background: #bdc3c7;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+  margin-right: 12px;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.notification-toggle input[type="checkbox"]:checked + .toggle-slider {
+  background: #3498db;
+}
+
+.notification-toggle input[type="checkbox"]:checked + .toggle-slider::before {
+  transform: translateX(26px);
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: #34495e;
+}
+
+.cache-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feature-support {
+  display: grid;
+  gap: 8px;
+}
+
+.feature-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.feature-name {
+  font-weight: 500;
+  color: #34495e;
+}
+
+.feature-status.supported {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.feature-status.not-supported {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .update-notification,
+  .install-prompt {
+    background: #2c3e50;
+    border-color: #34495e;
+  }
+  
+  .update-text h4,
+  .install-text h4 {
+    color: #ecf0f1;
+  }
+  
+  .update-text p,
+  .install-text p {
+    color: #bdc3c7;
+  }
+  
+  .update-btn-secondary,
+  .install-btn-secondary {
+    background: #34495e;
+    color: #bdc3c7;
+  }
+  
+  .update-btn-secondary:hover,
+  .install-btn-secondary:hover {
+    background: #4a5f7a;
+  }
+  
+  .pwa-settings-header h3,
+  .pwa-section h4,
+  .pwa-section h5 {
+    color: #ecf0f1;
+  }
+  
+  .pwa-settings-header p {
+    color: #bdc3c7;
+  }
+  
+  .pwa-section {
+    background: #2c3e50;
+    border-color: #34495e;
+  }
+  
+  .status-label,
+  .feature-name,
+  .toggle-label {
+    color: #bdc3c7;
+  }
+  
+  .feature-item {
+    background: #34495e;
+  }
+  
+  .status-item {
+    border-bottom-color: #34495e;
+  }
+  
+  .notification-preferences {
+    border-top-color: #34495e;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pwa-settings {
+    padding: 16px;
+  }
+  
+  .pwa-section {
+    padding: 16px;
+  }
+  
+  .cache-actions {
+    flex-direction: column;
+  }
+  
+  .pwa-btn {
+    width: 100%;
+    margin: 4px 0;
+  }
+  
+  .status-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .feature-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

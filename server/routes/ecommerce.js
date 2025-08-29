@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { auth } = require('../middleware/auth');
+const socketService = require('../services/socketService');
+const { createNotification } = require('./notifications');
 const router = express.Router();
 
 // Product Model
@@ -512,6 +514,37 @@ router.post('/orders', auth, async (req, res) => {
       await product.save();
     }
 
+    // Send notification to seller
+    await createNotification(
+      product.sellerId,
+      'order_received',
+      'Pesanan Baru Diterima!',
+      `Anda mendapat pesanan baru untuk produk "${product.name}"`,
+      {
+        orderId: order._id.toString(),
+        orderNumber: order.orderNumber,
+        productName: product.name,
+        quantity: quantity.toString(),
+        totalAmount: totalAmount.toString(),
+        buyerName: req.user.name
+      },
+      {
+        actionUrl: `/orders/${order._id}`,
+        actionText: 'Lihat Pesanan',
+        priority: 'high'
+      }
+    );
+
+    // Send Socket.io notification
+    socketService.notifyNewOrder(product.sellerId, {
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+      productName: product.name,
+      quantity,
+      totalAmount,
+      buyerName: req.user.name
+    });
+
     res.status(201).json({
       success: true,
       message: 'Order berhasil dibuat',
@@ -658,6 +691,36 @@ router.put('/orders/:id/status', auth, async (req, res) => {
     }
 
     await order.save();
+
+    // Send notification to buyer about status update
+    const product = await Product.findById(order.productId);
+    await createNotification(
+      order.buyerId,
+      'order_status_updated',
+      'Status Pesanan Diperbarui',
+      `Status pesanan "${product?.name || 'Produk'}" telah diperbarui menjadi: ${status}`,
+      {
+        orderId: order._id.toString(),
+        orderNumber: order.orderNumber,
+        productName: product?.name || 'Produk',
+        status: status,
+        trackingNumber: trackingNumber || ''
+      },
+      {
+        actionUrl: `/orders/${order._id}`,
+        actionText: 'Lihat Pesanan',
+        priority: status === 'completed' ? 'high' : 'medium'
+      }
+    );
+
+    // Send Socket.io notification
+    socketService.notifyOrderStatusUpdate(order.buyerId, {
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+      productName: product?.name || 'Produk',
+      status: status,
+      trackingNumber: trackingNumber || ''
+    });
 
     res.json({
       success: true,

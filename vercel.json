@@ -1,0 +1,150 @@
+{
+  "version": 2,
+  "name": "money-maker-platform",
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "cdn-cache-control": "public, max-age=31536000",
+        "vercel-cdn-cache-control": "public, max-age=31536000"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|woff|woff2|ttf|eot)$)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "cdn-cache-control": "public, max-age=31536000",
+        "vercel-cdn-cache-control": "public, max-age=31536000"
+      }
+    },
+    {
+      "src": "/(.*\\.(png|jpg|jpeg|gif|webp|avif|ico|svg)$)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, stale-while-revalidate=86400",
+        "cdn-cache-control": "public, max-age=31536000",
+        "vercel-cdn-cache-control": "public, max-age=31536000"
+      }
+    },
+    {
+      "src": "/api/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=0, stale-while-revalidate=60"
+      },
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=0, stale-while-revalidate=86400"
+      },
+      "dest": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/dashboard/home",
+      "destination": "/dashboard",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://money-maker-platform.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "@api-url",
+    "REACT_APP_STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key",
+    "REACT_APP_ENVIRONMENT": "production"
+  },
+  "build": {
+    "env": {
+      "GENERATE_SOURCEMAP": "false",
+      "INLINE_RUNTIME_CHUNK": "false",
+      "IMAGE_INLINE_SIZE_LIMIT": "0",
+      "REACT_APP_CDN_ENABLED": "true",
+      "REACT_APP_IMAGE_OPTIMIZATION": "true"
+    }
+  },
+  "images": {
+    "domains": ["money-maker-platform.vercel.app", "localhost"],
+    "sizes": [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    "formats": ["image/webp", "image/avif"],
+    "minimumCacheTTL": 31536000,
+    "dangerouslyAllowSVG": true,
+    "contentSecurityPolicy": "default-src 'self'; script-src 'none'; sandbox;"
+  },
+  "functions": {
+    "client/src/**/*.{js,ts,jsx,tsx}": {
+      "maxDuration": 30
+    }
+  },
+  "regions": ["iad1", "sfo1", "fra1", "sin1"],
+  "crons": [
+    {
+      "path": "/api/cron/cdn-warmup",
+      "schedule": "0 */6 * * *"
+    }
+  ],
+  "github": {
+    "autoAlias": false
+  }
+}

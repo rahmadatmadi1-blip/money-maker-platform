@@ -13,5 +13,89 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- PWA Installation Banner -->
+    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #2196F3; color: white; padding: 16px; text-align: center; z-index: 1000;">
+      <p style="margin: 0 0 8px 0;">Install Money Maker Platform for a better experience!</p>
+      <button id="pwa-install-btn" style="background: white; color: #2196F3; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 8px; cursor: pointer;">Install</button>
+      <button id="pwa-dismiss-btn" style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Not now</button>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New content available, show update notification
+                    if (confirm('New version available! Reload to update?')) {
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
+      // PWA Installation
+      let deferredPrompt;
+      const installBanner = document.getElementById('pwa-install-banner');
+      const installBtn = document.getElementById('pwa-install-btn');
+      const dismissBtn = document.getElementById('pwa-dismiss-btn');
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Show install banner if not dismissed
+        if (!localStorage.getItem('pwa-dismissed')) {
+          installBanner.style.display = 'block';
+        }
+      });
+      
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log('PWA install outcome:', outcome);
+          deferredPrompt = null;
+          installBanner.style.display = 'none';
+        }
+      });
+      
+      dismissBtn.addEventListener('click', () => {
+        installBanner.style.display = 'none';
+        localStorage.setItem('pwa-dismissed', 'true');
+      });
+      
+      // Handle app installed
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+        installBanner.style.display = 'none';
+      });
+      
+      // Request notification permission
+      if ('Notification' in window && navigator.serviceWorker) {
+        if (Notification.permission === 'default') {
+          setTimeout(() => {
+            Notification.requestPermission().then(permission => {
+              console.log('Notification permission:', permission);
+            });
+          }, 5000); // Ask after 5 seconds
+        }
+      }
+    </script>
   </body>
 </html>
